@@ -214,7 +214,7 @@ do_err(int rv, const char *message, ...)
  * Create an IP checksum from a header.
  */
 static void
-add_ip_cksum(struct ip *hdr)
+add_ip_cksum(aligned_ip_hdr *hdr)
 {
 	uint16_t *in;
 	uint32_t sum;
@@ -244,7 +244,7 @@ add_ip_cksum(struct ip *hdr)
  * Create a TCP checksum from a header.
  */
 static void
-add_tcp_cksum(const struct extract_context *ctx, struct tcphdr *th,
+add_tcp_cksum(const struct extract_context *ctx, aligned_tcp_hdr *th,
     uint16_t len)
 {
 	register const uint16_t *in;
@@ -1023,8 +1023,8 @@ pcap_packetblock(struct tcp_log_buffer *buf, struct extract_context *ctx)
 	struct pcapng_epb epb;
 	struct pcapng_blockend epb_end;
 	struct timeval utc_tv;
-	struct ip *iphdr;
-	struct ip6_hdr *ip6hdr;
+	aligned_ip_hdr *iphdr;
+	aligned_ip6_hdr *ip6hdr;
 	struct iovec iov[MAX_IOVS];
 	bitstr_t bit_decl(free_map, MAX_IOVS);
 	uint64_t ts;
@@ -1085,7 +1085,8 @@ pcap_packetblock(struct tcp_log_buffer *buf, struct extract_context *ctx)
 	hdr_len = epb.pktlen - buf->tlb_len;
 
 	/* Add the TCP checksum */
-	add_tcp_cksum(ctx, &buf->tlb_th, tcp_hlen + buf->tlb_len);
+	add_tcp_cksum(ctx, (aligned_tcp_hdr *)&buf->tlb_th,
+	    tcp_hlen + buf->tlb_len);
 
 	/*
 	 * Assign the first IOVs. Overall layout looks like this:
