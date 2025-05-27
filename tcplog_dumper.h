@@ -36,6 +36,7 @@
 
 typedef struct ip aligned_ip_hdr __aligned(2);
 typedef struct ip6_hdr aligned_ip6_hdr __aligned(2);
+typedef struct tcphdr aligned_tcp_hdr __aligned(2);
 
 struct extract_context;
 
